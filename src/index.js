@@ -1,5 +1,3 @@
-// import {createCar} from "./car";
-// import {createSwitch} from "./switch";
 import {Point} from "./modulesAreSingleTons";
 import {Car} from "./carInAncientConstructorStyle";
 import {CreateCar} from "./carFactory";
