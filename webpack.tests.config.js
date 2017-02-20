@@ -1,5 +1,4 @@
 var path = require("path");
-var fs = require("fs");
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
