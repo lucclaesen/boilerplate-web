@@ -3,7 +3,8 @@ import {Car} from "./carInAncientConstructorStyle";
 import {CreateCar} from "./carFactory";
 import {CarClass} from "./carsClass";
 
-console.log("Singleton");
+
+console.log("Modules are Singletons, yeah");
 const p1 = Point();
 const p2 = Point();
 
@@ -78,3 +79,29 @@ function testCarClass() {
 // testCarClassicalConstructorStyle();
 // testCarFactory();
 testCarClass();
+
+const configFactory = {
+    config: {},
+    addEntrySection(options) {
+        this.config.entry = [];
+        if (options.run === 'tests') {
+            this.config.entry.push('./tests/index.js');
+        }
+        else {
+            this.config.entry.push('./src/index.js');
+        }
+        return this;
+    }
+};
+
+const optionsDefaults = {
+    target : 'development',
+    run: 'app'
+}
+function createConfig (options = optionsDefaults) {
+    return configFactory
+        .addEntrySection(options)
+        .config;
+};
+
+console.log(createConfig());

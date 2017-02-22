@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./automation/localserver",
-    "browser-test": "webpack-dev-server --config webpack.tests.config.js",
-    "node-test" : "mocha tests/support/node-setup.js \"tests/**/*.test.js\""
+    "start": "webpack-dev-server",
+    "browser-test": "webpack-dev-server --env.run tests",
+    "node-test": "mocha tests/support/node-setup.js \"tests/**/*.test.js\""
   },
   "keywords": [],
   "author": "",

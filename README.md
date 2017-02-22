@@ -19,7 +19,7 @@ mocha test runner (through CDN). This will start the runner one page load.
 
 Of course, Mocha needs tests to execute. These are provided in a dedicated test bundle. Mocha is not referenced at all from inside this bundle.
 
-- One should never reference mocha -- it's a runner, not a library package (whereas Chai is a lib and should be referenced). Eslint warnings might prompt you to do so. 
+- One should never reference (reference / import) mocha -- it's a runner, not a library package (whereas Chai is a lib and should be referenced). Eslint warnings might prompt you to do so. 
 But thanks to https://github.com/feross/standard/issues/122. Fixing these linter warnings is simple: add an .eslintrc.json file in the tests folder with mocha 
 in the env.
 - The bundle served to the mocha runner should contain all tests, and via the dependencies of the tests on our app code, the latter will be automatically included. The key
@@ -41,7 +41,34 @@ The only way to accomplish such a goal is to run the tests on the development or
 In this setup, we bypass webpack completely (since it targets browsers). The key element from this setup:
 - an npm script node-test that calls mcoha with a testsetup.js and a glob for test files
 - the responsability of the setup.js file is to
-    - activate the transipler for es2015 and stage-0
+    - activate the transipler for es2015 and stage-0 (using babel register)
     - disable non-supported requires of styles and images.
     - eventually: setup jsdom
-    
+
+
+# How to deal with multiple configs(DEV - TST - PROD)?
+
+There is this brand new feature in webpack2, which makes dealing with differences in webpack configurations a lot more easy. There is a catch, though: this feature only
+works when the running script directly calls the webpack or webpack-dev-server cli. We therefore had to ditch our little node server in favor of calling webpack-dev-server
+directly.
+
+This feature of webpack2 is this:
+- the webpack config is allowed to export a function that takes an environment or options object. This function is expected to return a config object 
+that is set depending on what's set on the options object.
+- The shape and value of this options is determined in the npm script using the --env flag, e.g.
+    * --env.production will pass an object with a production : true property
+    * --env.target production will pass an object with target : 'production' property
+    * --env.target production --env.runTests will pass the following object: 
+        {
+            target: 'production',
+            runTests : true
+        }
+
+
+Note that webpack2, while providing this new feature, also blocks passing custom parameters through the cli (a webpack1 feature). If one really needs to use a node or
+express server as dev server, one can still do so, off cource, but not without writing some boilerplate that parses --env properties to create a config object with which
+the config function can then be effectively called.
+
+It really makes sense to emit a config not just based on a single environment var. E.g. target environment (dev /prod) is one thing, but running the app or the tests is
+another thing; which means that there are 4 possible configurations ... and surely one is unlikely to introduce 4 possible environment vars. With every additional dimension
+of configurability, the number of possible combinations grows.
