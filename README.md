@@ -48,9 +48,7 @@ In this setup, we bypass webpack completely (since it targets browsers). The key
 
 # How to deal with multiple configs(DEV - TST - PROD)?
 
-There is this brand new feature in webpack2, which makes dealing with differences in webpack configurations a lot more easy. There is a catch, though: this feature only
-works when the running script directly calls the webpack or webpack-dev-server cli. We therefore had to ditch our little node server in favor of calling webpack-dev-server
-directly.
+There is this brand new feature in webpack2, which makes dealing with differences in webpack configurations a lot more easy. 
 
 This feature of webpack2 is this:
 - the webpack config is allowed to export a function that takes an environment or options object. This function is expected to return a config object 
@@ -64,10 +62,13 @@ that is set depending on what's set on the options object.
             runTests : true
         }
 
+When calling a cli other than webpack or webpack-dev-server (such as when embedding the webpack-dev-middleware in an express app), we are responsible for parsing the --env options
+and generating the config object from the config function. This is as easy as:
 
-Note that webpack2, while providing this new feature, also blocks passing custom parameters through the cli (a webpack1 feature). If one really needs to use a node or
-express server as dev server, one can still do so, off cource, but not without writing some boilerplate that parses --env properties to create a config object with which
-the config function can then be effectively called.
+    import configFunc from "../webpack.config.js";
+    import yargs from "yargs";
+    const config = configFunc(yargs.argv.env);
+    const compiler = webpack(config);
 
 It really makes sense to emit a config not just based on a single environment var. E.g. target environment (dev /prod) is one thing, but running the app or the tests is
 another thing; which means that there are 4 possible configurations ... and surely one is unlikely to introduce 4 possible environment vars. With every additional dimension
