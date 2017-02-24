@@ -16,11 +16,28 @@ The qualities I appreciate in a development infrastructure for vanilla js are:
 - it includes a testing approach that runs both in the browser and can be integrated in automated build scenarios
 - it includes a build for production step.
 
-Half way in seting up this boilerplate, I realised that an additional quality of a good boilerplate, is that it directly reflects its creation process. My webpack
+Half way in setting up this boilerplate, I realised that an additional quality of a good boilerplate, is that it directly reflects its creation process. My webpack
 configuration function is sort of particular in that it builds a config object incrementally or by feature. Runtime effeciency can be improved in a project based on this
 starter kit; the kit itself however takes greater value in ownership and appropriation -- it literally shows the changes in the config object needed for supporting an
 additional feature. That makes a lot of documentation superfluous.
 
+This is a peek into the webpack.config.js function:
+```
+module.exports = function (options = optionsDefaults) {
+
+    if (options.target === "production")
+        process.env.NODE_ENV = "production";
+
+    return configFactory
+        .init(options)
+        .addHRMSupport(options)
+        .addUglificationSupport(options)
+        .addChunkSplitting(options)
+        .addCacheBustingSupport(options)
+        .addStyleModuleSupport(options)
+        .config;
+};
+```
 The result is greatly indepted to two examples: Cory House's great course on Pluralight and Emil Oberg's Webpack 2 tutorial.
 
 ## Test setup
