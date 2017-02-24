@@ -4,6 +4,7 @@ var HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const configFactory = {
     config: {},
+
     addEntrySection(options) {
         this.config.entry = [];
         if (options.run === 'tests') {
@@ -12,9 +13,12 @@ const configFactory = {
         else {
             this.config.entry.push('./src/index.js');
         }
-        this.config.entry.push('webpack-hot-middleware/client');
+        if (options.target !== "production") {
+            this.config.entry.push('webpack-hot-middleware/client');
+        }
         return this;
     },
+
     addOutputSection(options) {
         this.config.output = {};
         if (options.run === 'tests') {
@@ -34,7 +38,14 @@ const configFactory = {
 
     addPluginsSection(options) {
         this.config.plugins = [];
-        this.config.plugins.push(new webpack.HotModuleReplacementPlugin());
+        if (options.target === "development") {
+            this.config.plugins.push(new webpack.HotModuleReplacementPlugin());
+        }
+        else {
+            this.config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+                sourceMap: true // option is required to combine uglification and source maps
+            }));
+        }
         if (options.run === 'tests') {
             this.config.plugins.push(new HtmlWebpackPlugin({
                     cache: true,
@@ -101,6 +112,9 @@ const optionsDefaults = {
 }
 
 module.exports = function (options = optionsDefaults) {
+
+    if (options.target === "production")
+        process.env.NODE_ENV = "production";
 
     return configFactory
         .addEntrySection(options)

@@ -73,3 +73,13 @@ and generating the config object from the config function. This is as easy as:
 It really makes sense to emit a config not just based on a single environment var. E.g. target environment (dev /prod) is one thing, but running the app or the tests is
 another thing; which means that there are 4 possible configurations ... and surely one is unlikely to introduce 4 possible environment vars. With every additional dimension
 of configurability, the number of possible combinations grows.
+
+# Enabling HRM
+
+Enabling HRM in an express server is just a matter of 
+- 'use-ing' another piece of middleware (webpack-hot-middleware), passing the same webpack compiler instance as is passed into the webpack-dev-middleware.
+- adding an extra entrypoint 'webpack-hot-middleware/client'
+
+Make sure that HRM is disabled in builds for production.
+
+# Building for production
