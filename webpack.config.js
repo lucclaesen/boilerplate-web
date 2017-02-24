@@ -2,10 +2,19 @@ var path = require("path");
 var webpack = require("webpack");
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 
+/** The basic idea behind this factory is to support incremental addition of features. Webpack configuration is hard. So hard, that, once
+ * a setup is complete, you tend forget how it evolved. 
+ * 
+ * So why not implement a factory that sort of reflects its stepwise genesis? It won't be the most efficient factory, but it's maintainability
+ * will be higher.
+ */
 const configFactory = {
+
     config: {},
 
-    addEntrySection(options) {
+    init(options) {
+
+        // basic entry section
         this.config.entry = [];
         if (options.run === 'tests') {
             this.config.entry.push('./tests/index.js');
@@ -13,17 +22,12 @@ const configFactory = {
         else {
             this.config.entry.push('./src/index.js');
         }
-        if (options.target !== "production") {
-            this.config.entry.push('webpack-hot-middleware/client');
-        }
-        return this;
-    },
-
-    addOutputSection(options) {
+        
+        // basic output section
         this.config.output = {};
         if (options.run === 'tests') {
             this.config.output = {
-                filename: 'test.build.js',
+                filename: 'test.bundle.js',
                 path: path.join(__dirname, 'tests')
             };
         }
@@ -33,59 +37,25 @@ const configFactory = {
                 filename: 'bundle.js'
             };
         }
-        return this;    
-    },
 
-    addPluginsSection(options) {
+        // basic plugin config
         this.config.plugins = [];
-        if (options.target === "development") {
-            this.config.plugins.push(new webpack.HotModuleReplacementPlugin());
-        }
-        else {
-            this.config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-                sourceMap: true // option is required to combine uglification and source maps
-            }));
-        }
-        if (options.run === 'tests') {
-            this.config.plugins.push(new HtmlWebpackPlugin({
+        const htmlPluginOptions = (options.run === 'tests') ?
+            {
                     cache: true,
                     filename: "index.html",
                     showErrors: true,
                     template: "tests/support/index-template.html",
                     title: "Mocha browser test"
-                }));
-        } else {
-            this.config.plugins.push(new HtmlWebpackPlugin({
+            } :
+            {
                 template : "./src/index-template.html",
                 filename: "index.html",
                 showErrors: true
-            }));
-        }
-        return this;    
-    },
-
-    addDevToolSection(options) {
-         this.config.devtool = "source-map";
-         return this;
-    },
-
-    addDevServerSections(options) {
-         if (options.run === 'tests') {
-            this.config.devServer = {
-                host: "localhost",
-                port: 8001
             };
-        }
-        else {
-            this.config.devServer = {
-                host: "localhost",
-                port: 8000
-            }
-        }
-        return this;
-    },
+        this.config.plugins.push(new HtmlWebpackPlugin(htmlPluginOptions));
 
-    addLoadersSection(options) {
+        // basic loader config
         this.config.module = {};
         this.config.module.loaders = [];
         this.config.module.loaders.push({
@@ -102,6 +72,70 @@ const configFactory = {
                         ]
                     });
         }
+
+        // basic devTools config
+        this.config.devtool = "source-map";
+
+        // basic devServer config
+        if (options.run === 'tests') {
+            this.config.devServer = {
+                host: "localhost",
+                port: 8001
+            };
+        }
+        else {
+            this.config.devServer = {
+                host: "localhost",
+                port: 8000
+            }
+        }
+
+        return this;
+    },
+
+    addHRMSupport(options) {
+         if (options.target === "development") {
+            this.config.entry.push('webpack-hot-middleware/client');
+            this.config.plugins.push(new webpack.HotModuleReplacementPlugin());
+        }
+        return this;
+    },
+
+    addUglificationSupport(options) {
+         if (options.target === "production") {
+            this.config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+                sourceMap: true // option is required to combine uglification and source maps
+            }));
+        }
+        return this;
+    },
+
+    addChunkSplitting(options) {
+        if (options.target === "production") {
+            // replace the single production entry point by a dictionary of entry points
+            const oldEntryPoint = this.config.entry;
+            this.config.entry = {
+                main: oldEntryPoint,
+                vendor: "./src/vendor.js"
+            };
+
+            // make sure that code that overlaps between the chunks only gets placed in the vendor chunk
+            this.config.plugins.push(new webpack.optimize.CommonsChunkPlugin({
+                name: "vendor"
+            }));
+
+            // change the fixed bundle names into names equal to those of their entry points
+            this.config.output.filename = "[name].js";
+        }
+        return this;
+    },
+
+    addCacheBustingSupport(options) {
+        if (options.target === "production") {
+            // hash the bundle filename
+            this.config.output.filename = "[name].[hash]js";
+            // html needs to refer to the correct bundle names
+        }
         return this;
     }
 };
@@ -117,12 +151,11 @@ module.exports = function (options = optionsDefaults) {
         process.env.NODE_ENV = "production";
 
     return configFactory
-        .addEntrySection(options)
-        .addOutputSection(options)
-        .addLoadersSection(options)
-        .addPluginsSection(options)
-        .addDevToolSection(options)
-        .addDevServerSections(options)
+        .init(options)
+        .addHRMSupport(options)
+        .addUglificationSupport(options)
+        .addChunkSplitting(options)
+        .addCacheBustingSupport(options)
         .config;
 };
 
