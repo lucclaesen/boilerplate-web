@@ -107,4 +107,12 @@ Enabling HRM in an express server is just a matter of
 
 Make sure that HRM is disabled in builds for production.
 
+## Adding style bundle supported
+
+See webpack.config.js.
+
+
 ## Building for production
+
+
+See webpack.config.js.
