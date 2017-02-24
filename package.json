@@ -4,10 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server",
-    "browser-test": "webpack-dev-server --env.run tests",
+    "start": "babel-node ./automation/devServer2.js",
     "node-test": "mocha tests/support/node-setup.js \"tests/**/*.test.js\"",
-    "try": "babel-node ./automation/devServer2.js  --env.run tests"
+    "browser-test": "babel-node ./automation/devServer2.js  --env.run tests"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +28,7 @@
     "webpack": "^2.2.1",
     "webpack-dev-middleware": "^1.10.1",
     "webpack-dev-server": "^2.3.0",
+    "webpack-hot-middleware": "^2.17.1",
     "yargs": "^6.6.0"
   }
 }

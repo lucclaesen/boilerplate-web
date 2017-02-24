@@ -3,7 +3,6 @@ import {Car} from "./carInAncientConstructorStyle";
 import {CreateCar} from "./carFactory";
 import {CarClass} from "./carsClass";
 
-
 console.log("Modules are Singletons, yeah");
 const p1 = Point();
 const p2 = Point();
@@ -104,4 +103,5 @@ function createConfig (options = optionsDefaults) {
         .config;
 };
 
+console.log("done")
 console.log(createConfig());

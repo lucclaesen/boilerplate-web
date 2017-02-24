@@ -1,6 +1,7 @@
 import express from "express";
 import webpack from "webpack";
 import webPackDevMiddleware from "webpack-dev-middleware";
+import webPackHotMiddleware from "webpack-hot-middleware";
 import configFunc from "../webpack.config.js";
 import yargs from "yargs";
 import chalk from "chalk";
@@ -11,9 +12,11 @@ const app = express();
 const compiler = webpack(config);
 
 app.use(webPackDevMiddleware(compiler, {
-    // noInfo: true,
+    noInfo: true,
     publicPath : config.output.publicPath
 }));
+
+app.use(webPackHotMiddleware(compiler));
 
 app.listen(config.devServer.port, function(err) {
     if (err) {

@@ -12,6 +12,7 @@ const configFactory = {
         else {
             this.config.entry.push('./src/index.js');
         }
+        this.config.entry.push('webpack-hot-middleware/client');
         return this;
     },
     addOutputSection(options) {
@@ -19,14 +20,12 @@ const configFactory = {
         if (options.run === 'tests') {
             this.config.output = {
                 filename: 'test.build.js',
-                path: path.join(__dirname, 'tests'),
-                publicPath: 'http://localhost:8001/tests'
+                path: path.join(__dirname, 'tests')
             };
         }
         else {
             this.config.output = {
                 path: path.join(__dirname, 'dist'),
-                publicPath: '/dist/', 
                 filename: 'bundle.js'
             };
         }
@@ -39,11 +38,17 @@ const configFactory = {
         if (options.run === 'tests') {
             this.config.plugins.push(new HtmlWebpackPlugin({
                     cache: true,
-                    filename: path.join(__dirname, "tests/index.html"),
+                    filename: "index.html",
                     showErrors: true,
                     template: "tests/support/index-template.html",
                     title: "Mocha browser test"
                 }));
+        } else {
+            this.config.plugins.push(new HtmlWebpackPlugin({
+                template : "./src/index-template.html",
+                filename: "index.html",
+                showErrors: true
+            }));
         }
         return this;    
     },
