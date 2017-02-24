@@ -140,7 +140,6 @@ const configFactory = {
         if (options.target === "production") {
             // hash the bundle filename
             this.config.output.filename = "[name].[hash].js";
-            // html needs to refer to the correct bundle names
         }
         return this;
     },

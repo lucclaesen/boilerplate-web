@@ -1,10 +1,35 @@
-# Test setup
+# boilerplate-web
+
+After having been absent from javascript land for some time, I needed a refresher. I thought a good
+start would be to incrementally build up a boilerplate for my next js projects.
+
+A lot has happened while I was away -- most notably webpack2.
+
+My goal was to set up a development environment without a technical commitment to a framework such as react-redux, angular or view. However, webpack is a commitment that
+I won't give up easily. 
+
+The qualities I appreciate in a development infrastructure for vanilla js are:
+- it needs to be 'your own', i.e. understood to a sufficiently high degree, even when inspired by others. 
+- simple: it takes dependencies only after consideration and when the impact of relying on someone else's work is well understood. One of he implications of simplicity is that I will no longer invest
+    in task runners: there's enough in webpack, npm and in self written node scripts to glue a continuous integration pipeline together.
+- extendible: good bey webpack-dev-server, hello webpack-dev-middleware used by an express static server to which e.g. a mock of an api can be easily added
+- it includes a testing approach that runs both in the browser and can be integrated in automated build scenarios
+- it includes a build for production step.
+
+Half way in seting up this boilerplate, I realised that an additional quality of a good boilerplate, is that it directly reflects its creation process. My webpack
+configuration function is sort of particular in that it builds a config object incrementally or by feature. Runtime effeciency can be improved in a project based on this
+starter kit; the kit itself however takes greater value in ownership and appropriation -- it literally shows the changes in the config object needed for supporting an
+additional feature. That makes a lot of documentation superfluous.
+
+The result is greatly indepted to two examples: Cory House's great course on Pluralight and Emil Oberg's Webpack 2 tutorial.
+
+## Test setup
 
 This took some experimenting to get everything in place without too much magic. But in the end, the result is fairly simple.
 
 The golden tip came from an answer by Eric Clemmons on https://github.com/mochajs/mocha/issues/2448.
 
-## Testing with Mocha in the browser.
+### Testing with Mocha in the browser.
 
 In browser testing is interesting in several respects: imagine a setup in which your browser loads both your app and, on another tap, the test results. This can be
 easily realized if both the start and browser test scripts are run.
@@ -31,7 +56,7 @@ template for generating this html file makes sure that mocha styles and js are l
 
 As one can see, we have a very simple browser-test configuration of webpack to support all of this.
 
-## Node testing
+### Node testing
 
 In browser testing is great, but has one disadvantage: it does not allow integration in a continuous integration scenario, i.e. in a mature automation scenario in which, e.g.
 a commit is not allowed if one of the tests fail.
@@ -46,7 +71,7 @@ In this setup, we bypass webpack completely (since it targets browsers). The key
     - eventually: setup jsdom
 
 
-# How to deal with multiple configs(DEV - TST - PROD)?
+## How to deal with multiple configs(DEV - TST - PROD)?
 
 There is this brand new feature in webpack2, which makes dealing with differences in webpack configurations a lot more easy. 
 
@@ -74,7 +99,7 @@ It really makes sense to emit a config not just based on a single environment va
 another thing; which means that there are 4 possible configurations ... and surely one is unlikely to introduce 4 possible environment vars. With every additional dimension
 of configurability, the number of possible combinations grows.
 
-# Enabling HRM
+## Enabling HRM
 
 Enabling HRM in an express server is just a matter of 
 - 'use-ing' another piece of middleware (webpack-hot-middleware), passing the same webpack compiler instance as is passed into the webpack-dev-middleware.
@@ -82,4 +107,4 @@ Enabling HRM in an express server is just a matter of
 
 Make sure that HRM is disabled in builds for production.
 
-# Building for production
+## Building for production
