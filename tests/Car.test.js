@@ -1,7 +1,7 @@
 
 // For some reason, best to do an old-style require fo chai
 var expect = require("chai").expect;
-import {Car} from "../src/carInAncientConstructorStyle";
+import {Car} from "../src/js/carInAncientConstructorStyle";
 
 
 describe("Calling the constructor on Car", function() {

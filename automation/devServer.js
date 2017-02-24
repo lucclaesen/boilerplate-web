@@ -11,6 +11,8 @@ const config = configFunc(yargs.argv.env);
 const app = express();
 const compiler = webpack(config);
 
+console.dir(config);
+
 app.use(webPackDevMiddleware(compiler, {
     noInfo: true,
     publicPath : config.output.publicPath

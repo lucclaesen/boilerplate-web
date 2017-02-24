@@ -3,6 +3,8 @@ import {Car} from "./carInAncientConstructorStyle";
 import {CreateCar} from "./carFactory";
 import {CarClass} from "./carsClass";
 
+require("../styles/app.css");
+
 console.log("Modules are Singletons, yeah");
 const p1 = Point();
 const p2 = Point();

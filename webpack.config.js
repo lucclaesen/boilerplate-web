@@ -1,6 +1,7 @@
 var path = require("path");
 var webpack = require("webpack");
 var HtmlWebpackPlugin = require("html-webpack-plugin");
+var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 /** The basic idea behind this factory is to support incremental addition of features. Webpack configuration is hard. So hard, that, once
  * a setup is complete, you tend forget how it evolved. 
@@ -20,7 +21,7 @@ const configFactory = {
             this.config.entry.push('./tests/index.js');
         }
         else {
-            this.config.entry.push('./src/index.js');
+            this.config.entry.push('./src/js/index.js');
         }
         
         // basic output section
@@ -61,17 +62,21 @@ const configFactory = {
         this.config.module.loaders.push({
                         test: /\.js$/,
                         loaders: ['babel-loader'],
-                        exclude: /node_modules/
+                        exclude: [/dist/, /node_modules/]
                     });
         if (options.run === 'tests') {
             this.config.module.loaders.push({
                         test: /(\.css|\.less)$/,
                         loader: 'null-loader',
                         exclude: [
-                            /build/
+                            /dist/, 
+                            /node-modules/
                         ]
                     });
         }
+
+        // basic rules config
+        this.config.module.rules = [];
 
         // basic devTools config
         this.config.devtool = "source-map";
@@ -104,19 +109,20 @@ const configFactory = {
     addUglificationSupport(options) {
          if (options.target === "production") {
             this.config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-                sourceMap: true // option is required to combine uglification and source maps
+                sourceMap: true // this option is required to combine uglification and source maps
             }));
         }
         return this;
     },
 
+    /** Adds a basic chunk split between own and vendor provided code */
     addChunkSplitting(options) {
         if (options.target === "production") {
             // replace the single production entry point by a dictionary of entry points
             const oldEntryPoint = this.config.entry;
             this.config.entry = {
                 main: oldEntryPoint,
-                vendor: "./src/vendor.js"
+                vendor: "./src/js/vendor.js"
             };
 
             // make sure that code that overlaps between the chunks only gets placed in the vendor chunk
@@ -133,8 +139,24 @@ const configFactory = {
     addCacheBustingSupport(options) {
         if (options.target === "production") {
             // hash the bundle filename
-            this.config.output.filename = "[name].[hash]js";
+            this.config.output.filename = "[name].[hash].js";
             // html needs to refer to the correct bundle names
+        }
+        return this;
+    },
+
+    addStyleModuleSupport(options) {
+        if (options.run === "app") {
+            const stylesheetName = (options.target === "development") ? "app.css" : "[hash].css";
+            this.config.plugins.push(new ExtractTextPlugin(stylesheetName));
+            this.config.module.rules.push( {
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: "css-loader"
+                })
+            });
+
         }
         return this;
     }
@@ -156,6 +178,7 @@ module.exports = function (options = optionsDefaults) {
         .addUglificationSupport(options)
         .addChunkSplitting(options)
         .addCacheBustingSupport(options)
+        .addStyleModuleSupport(options)
         .config;
 };
 
