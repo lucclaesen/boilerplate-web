@@ -58,14 +58,17 @@ const configFactory = {
 
         // basic loader config
         this.config.module = {};
-        this.config.module.loaders = [];
-        this.config.module.loaders.push({
+
+        // basic rules config
+        this.config.module.rules = [];
+        this.config.module.rules.push({
                         test: /\.js$/,
-                        loaders: ['babel-loader'],
+                        loader: ['babel-loader'],
                         exclude: [/dist/, /node_modules/]
                     });
+
         if (options.run === 'tests') {
-            this.config.module.loaders.push({
+            this.config.module.rules.push({
                         test: /(\.css|\.less)$/,
                         loader: 'null-loader',
                         exclude: [
@@ -75,8 +78,6 @@ const configFactory = {
                     });
         }
 
-        // basic rules config
-        this.config.module.rules = [];
 
         // basic devTools config
         this.config.devtool = "source-map";
