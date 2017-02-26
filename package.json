@@ -9,7 +9,7 @@
     "browser-test": "babel-node ./automation/devServer.js  --env.run tests",
     "clean-dist": "rimraf ./dist && mkdir dist",
     "prebuild": "npm-run-all clean-dist node-test",
-    "build": "babel-node ./automation/build.js --env.target production",
+    "build": "babel-node ./automation/build.js --env.target production --env.run app",
     "serve-dist": "babel-node ./automation/distserver.js"
   },
   "keywords": [],
